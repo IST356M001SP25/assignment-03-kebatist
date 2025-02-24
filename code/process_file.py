@@ -9,24 +9,19 @@ from io import StringIO
 import packaging
 import json
 
-def process_file(file):
-    # Read the file
-    file.seek(0)
-    text = StringIO(file.read().decode('utf-8'))
-    # Parse the file
-    packages = {}
-    for line in text:
-        package, size = line.split()
-        if package in packages:
-            packages[package] += int(size)
-        else:
-            packages[package] = int(size)
-    # Output the parsed package and total package size
-    for package, size in packages.items():
-        st.write(f'Package: {package}, Size: {size}')
+st.title("process file")
 
-def main():
-    st.title('Package Information')
-    file = st.file_uploader('Upload a file', type='txt')
-    if file:
-        process_file(file)
+file = st.file_uploader("upload file")
+if file:
+    file.seek(0)
+    file_contents = file.read().decode("utf-8")
+    file.seek(0)
+    parsed_file = packaging.parse_packaging(file_contents)
+    total = packaging.calc_total_units(parsed_file)
+    unit = packaging.get_unit(parsed_file)
+    st.text(parsed_file)
+    for item in parsed_file:
+        name = list(item.keys())[0]
+        size = list(item.values())[0]
+        st.info(f"{name} ➡️ {size}")
+    st.success(f"Total 📦 Size: {total} {unit}")
